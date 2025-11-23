@@ -27,7 +27,6 @@
 
         /* Estilos UI */
         .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .glass-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.5); }
         
         /* Gráfico D3 */
         .chart-bg { background: radial-gradient(circle at top right, #1e1b4b, #0f172a); }
@@ -45,14 +44,15 @@
         }
         .video-card video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .video-card:hover video { transform: scale(1.05); }
-        .play-indicator { opacity: 0; transition: opacity 0.3s; }
-        .video-card:hover .play-indicator { opacity: 1; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Selected Avatar State */
+        .avatar-item.selected { ring: 3px solid #000; transform: scale(0.95); }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -103,9 +103,9 @@
             </h1>
             
             <!-- Subheadline -->
-            <p class="fade-up delay-200 text-xl text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-                Genera miles de variaciones de anuncios en minutos con nuestros Avatares IA hiperrealistas. 
-                <span class="text-slate-900 font-medium">Aumenta tu ROAS un 40%</span> reduciendo costes de producción un 90%.
+            <p class="fade-up delay-200 text-xl text-slate-500 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+                Anuncios en minutos con avatares IA. Sin actores, sin equipos, sin costes. 
+                <span class="text-slate-900 font-medium">Rápido, barato y escalable.</span>
             </p>
             
             <!-- CTA Buttons -->
@@ -129,8 +129,7 @@
                     <div class="marquee-content gap-6 px-6">
                         <!-- VIDEO 1 -->
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100 group cursor-pointer">
-                            <!-- NOTA: Coloca un archivo llamado video1.mp4 en la carpeta -->
-                            <video src="video1.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Hook+Viral" autoplay loop muted playsinline></video>
+                            <video src="video1.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Video+1" autoplay loop muted playsinline></video>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
                             <div class="absolute bottom-5 left-5 text-white">
                                 <div class="text-xs font-bold bg-white/20 backdrop-blur px-2 py-1 rounded inline-block mb-2">E-commerce</div>
@@ -140,7 +139,7 @@
 
                         <!-- VIDEO 2 -->
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100 group cursor-pointer">
-                            <video src="video2.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=SaaS+Demo" autoplay loop muted playsinline></video>
+                            <video src="video2.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Video+2" autoplay loop muted playsinline></video>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
                             <div class="absolute bottom-5 left-5 text-white">
                                 <div class="text-xs font-bold bg-white/20 backdrop-blur px-2 py-1 rounded inline-block mb-2">SaaS</div>
@@ -150,7 +149,7 @@
 
                         <!-- VIDEO 3 -->
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100 group cursor-pointer">
-                            <video src="video3.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Testimonio" autoplay loop muted playsinline></video>
+                            <video src="video3.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Video+3" autoplay loop muted playsinline></video>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
                             <div class="absolute bottom-5 left-5 text-white">
                                 <div class="text-xs font-bold bg-white/20 backdrop-blur px-2 py-1 rounded inline-block mb-2">Fintech</div>
@@ -158,22 +157,22 @@
                             </div>
                         </div>
 
-                        <!-- VIDEO 4 (Repetición o nuevo) -->
+                        <!-- VIDEO 4 (Añadido) -->
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100 group cursor-pointer">
-                            <video src="video4.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Variante+B" autoplay loop muted playsinline></video>
+                            <video src="video4.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Video+4" autoplay loop muted playsinline></video>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90"></div>
                             <div class="absolute bottom-5 left-5 text-white">
-                                <div class="text-xs font-bold bg-white/20 backdrop-blur px-2 py-1 rounded inline-block mb-2">A/B Test</div>
-                                <div class="font-semibold">Variation: High Energy</div>
+                                <div class="text-xs font-bold bg-white/20 backdrop-blur px-2 py-1 rounded inline-block mb-2">Viral</div>
+                                <div class="font-semibold">Trend Response</div>
                             </div>
                         </div>
 
-                        <!-- Clones para loop infinito -->
+                        <!-- Clones para loop -->
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100">
-                             <video src="video1.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=Hook+Viral" autoplay loop muted playsinline></video>
+                             <video src="video1.mp4" autoplay loop muted playsinline></video>
                         </div>
                         <div class="video-card w-[280px] aspect-[9/16] bg-slate-100">
-                             <video src="video2.mp4" poster="https://placehold.co/560x996/1a1a1a/FFFFFF?text=SaaS+Demo" autoplay loop muted playsinline></video>
+                             <video src="video2.mp4" autoplay loop muted playsinline></video>
                         </div>
                     </div>
                 </div>
@@ -201,7 +200,6 @@
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-8">
-                    <!-- Feature 1 -->
                     <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform">
                         <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-bolt text-2xl text-blue-600"></i>
@@ -210,7 +208,6 @@
                         <p class="text-slate-500 leading-relaxed">De guion a video final en minutos, no semanas. Reacciona a tendencias virales instantáneamente.</p>
                     </div>
 
-                    <!-- Feature 2 -->
                     <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform">
                         <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-coins text-2xl text-green-600"></i>
@@ -219,7 +216,6 @@
                         <p class="text-slate-500 leading-relaxed">Reduce costes de producción un 90%. Sin contratar actores, alquiler de estudios ni equipos caros.</p>
                     </div>
 
-                    <!-- Feature 3 -->
                     <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform">
                         <div class="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6">
                             <i class="fa-solid fa-users-viewfinder text-2xl text-purple-600"></i>
@@ -233,13 +229,10 @@
 
         <!-- DATA / ROI SECTION -->
         <section id="results" class="py-24 bg-[#0B0F19] text-white overflow-hidden relative">
-            <!-- Background Glows -->
             <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
 
             <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-                
-                <!-- Chart Column -->
                 <div class="order-2 lg:order-1">
                     <div class="chart-bg rounded-3xl p-6 border border-white/10 shadow-2xl">
                         <div class="flex justify-between items-center mb-8 px-2">
@@ -262,7 +255,6 @@
                     </div>
                 </div>
 
-                <!-- Text Column -->
                 <div class="order-1 lg:order-2">
                     <div class="inline-block bg-indigo-500/20 text-indigo-300 font-bold text-xs px-3 py-1 rounded-full mb-6 border border-indigo-500/30">
                         DATA DRIVEN CREATIVES
@@ -283,10 +275,6 @@
                         <li class="flex items-start gap-3">
                             <i class="fa-solid fa-check-circle text-green-400 mt-1"></i>
                             <span class="text-slate-300">Adaptación contextual por nicho de audiencia.</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check-circle text-green-400 mt-1"></i>
-                            <span class="text-slate-300">Integración directa con Meta y TikTok Ads Manager.</span>
                         </li>
                     </ul>
 
@@ -310,10 +298,6 @@
                             <input type="email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-black/5 focus:border-black outline-none transition-all" placeholder="nombre@empresa.com">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Sitio Web</label>
-                            <input type="url" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-black/5 focus:border-black outline-none transition-all" placeholder="https://tuweb.com">
-                        </div>
-                        <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Interés Principal</label>
                             <select class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-black/5 focus:border-black outline-none transition-all">
                                 <option>Demo de la Plataforma</option>
@@ -325,10 +309,6 @@
                             Solicitar Acceso
                         </button>
                     </form>
-                    
-                    <p class="text-[10px] text-slate-400 mt-6">
-                        Tus datos están seguros. Al enviar aceptas nuestra Política de Privacidad.
-                    </p>
                 </div>
             </div>
         </section>
@@ -345,51 +325,90 @@
                     <a href="#" class="hover:text-black">Términos</a>
                     <a href="#" class="hover:text-black">Privacidad</a>
                     <a href="#" class="hover:text-black">Twitter</a>
-                    <a href="#" class="hover:text-black">LinkedIn</a>
                 </div>
             </div>
         </footer>
     </section>
 
-    <!-- APP STUDIO (Igual que antes pero integrado) -->
+    <!-- APP STUDIO (DEMO) -->
     <section id="app-studio" class="hidden flex-1 pt-20 overflow-hidden bg-slate-50 relative h-full animate-fade-in">
-        <!-- Sidebar -->
-        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col z-20 absolute top-20 bottom-0 left-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        
+        <!-- Botón Volver -->
+        <div class="absolute top-4 left-4 z-50">
+            <button onclick="window.goHome()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-all text-sm font-semibold text-slate-700">
+                <i class="fa-solid fa-arrow-left"></i>
+                Volver al Inicio
+            </button>
+        </div>
+
+        <!-- Sidebar: Selección de Avatar y Guion -->
+        <aside class="w-80 bg-white border-r border-slate-200 flex flex-col z-20 absolute top-0 bottom-0 left-0 shadow-[4px_0_24px_rgba(0,0,0,0.02)] pt-16">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Biblioteca de Avatares</h3>
-                <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded">124 Activos</span>
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Seleccionar Perfil (Avatar)</h3>
             </div>
             
             <div class="flex-1 overflow-y-auto p-5">
-                <div class="grid grid-cols-2 gap-3">
-                     <!-- Avatar Items -->
-                     <div class="aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border-2 border-black relative overflow-hidden group" style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300')">
+                <div class="grid grid-cols-2 gap-3" id="avatar-grid">
+                     <!-- Avatar 1 -->
+                     <div class="avatar-item aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden group selected" 
+                          onclick="selectAvatar(this, 'video1.mp4')"
+                          style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=300')">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <span class="absolute bottom-2 left-2 text-white text-xs font-bold">Sarah</span>
+                        <span class="absolute bottom-2 left-2 text-white text-xs font-bold">Sofia (Viral)</span>
+                        <div class="hidden group-[.selected]:flex absolute inset-0 border-[3px] border-indigo-500 rounded-xl items-center justify-center bg-indigo-500/10">
+                            <i class="fa-solid fa-check-circle text-white drop-shadow-md text-2xl"></i>
+                        </div>
                      </div>
-                     <div class="aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=300')"></div>
-                     <div class="aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=300')"></div>
-                     <div class="aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300')"></div>
+
+                     <!-- Avatar 2 -->
+                     <div class="avatar-item aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden group" 
+                          onclick="selectAvatar(this, 'video2.mp4')"
+                          style="background-image: url('https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=300')">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-2 left-2 text-white text-xs font-bold">Leo (Tech)</span>
+                     </div>
+
+                     <!-- Avatar 3 -->
+                     <div class="avatar-item aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden group" 
+                          onclick="selectAvatar(this, 'video3.mp4')"
+                          style="background-image: url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=300')">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-2 left-2 text-white text-xs font-bold">Emma (UGC)</span>
+                     </div>
+
+                     <!-- Avatar 4 -->
+                     <div class="avatar-item aspect-[3/4] rounded-xl bg-cover bg-center cursor-pointer border border-slate-200 hover:border-slate-400 transition relative overflow-hidden group" 
+                          onclick="selectAvatar(this, 'video4.mp4')"
+                          style="background-image: url('https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=300')">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-2 left-2 text-white text-xs font-bold">David (Pro)</span>
+                     </div>
                 </div>
             </div>
 
             <div class="p-5 bg-slate-50 border-t border-slate-200">
                  <div class="flex justify-between mb-2">
-                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Guion IA</h3>
-                    <button class="text-xs text-indigo-600 hover:underline">Generar con GPT-4</button>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Tu Guion</h3>
+                    <button class="text-xs text-indigo-600 hover:underline"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Mejorar IA</button>
                  </div>
-                 <textarea class="w-full h-24 p-3 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-black/5 bg-white shadow-sm transition-all" placeholder="Escribe tu guion aquí..."></textarea>
+                 <textarea class="w-full h-32 p-3 text-sm border border-slate-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-black/5 bg-white shadow-sm transition-all" placeholder="Escribe aquí el texto que quieres que diga tu avatar..."></textarea>
+                 
+                 <button class="w-full mt-3 bg-black text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors">
+                    Generar Video <i class="fa-solid fa-arrow-right"></i>
+                 </button>
             </div>
         </aside>
 
         <!-- Main Preview -->
-        <main class="absolute top-20 bottom-0 left-80 right-0 bg-[#F0F2F5] flex flex-col items-center justify-center p-8 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
+        <main class="absolute top-0 bottom-0 left-80 right-0 bg-[#F0F2F5] flex flex-col items-center justify-center p-8 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
             <div class="flex items-center gap-4 mb-6">
-                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Vista Previa: TikTok 9:16</span>
+                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Vista Previa Vertical (9:16)</span>
             </div>
             
-            <div class="relative w-[320px] h-[568px] bg-black rounded-[2.5rem] shadow-2xl ring-8 ring-slate-900 overflow-hidden group transform transition-all hover:scale-[1.02] duration-500">
-                <!-- Video Preview -->
+            <!-- Contenedor del Teléfono (Vertical Forzado) -->
+            <div class="relative w-[340px] h-[600px] bg-black rounded-[2.5rem] shadow-2xl ring-8 ring-slate-900 overflow-hidden group transform transition-all duration-500">
+                <!-- Video Preview (Con Audio Habilitado) -->
+                <!-- NOTA: El atributo 'muted' se ha quitado aquí para que suene al darle play -->
                 <video id="preview-player" src="video1.mp4" class="w-full h-full object-cover" loop playsinline></video>
                 
                 <!-- Controls Overlay -->
@@ -401,23 +420,23 @@
                 
                 <!-- UI Fake -->
                 <div class="absolute bottom-6 right-4 flex flex-col gap-4 items-center">
-                    <div class="w-10 h-10 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-heart"></i></div>
-                    <div class="w-10 h-10 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-share"></i></div>
+                    <div class="w-10 h-10 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white hover:scale-110 transition"><i class="fa-solid fa-heart"></i></div>
+                    <div class="w-10 h-10 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white hover:scale-110 transition"><i class="fa-solid fa-comment"></i></div>
+                    <div class="w-10 h-10 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white hover:scale-110 transition"><i class="fa-solid fa-share"></i></div>
                 </div>
                 
-                <div class="absolute bottom-6 left-4 right-16">
-                    <div class="h-1 bg-white/30 rounded-full overflow-hidden">
-                        <div class="h-full w-2/3 bg-white"></div>
+                <div class="absolute bottom-6 left-4 right-16 pointer-events-none">
+                    <div class="h-1 bg-white/30 rounded-full overflow-hidden mb-2">
+                        <div class="h-full w-0 bg-white animate-[width_10s_linear_infinite]"></div>
                     </div>
-                    <div class="mt-2 text-white text-xs font-medium drop-shadow-md">
-                        @LuminaAI <br> <span class="opacity-80 font-light">#AI #UGC #Marketing</span>
+                    <div class="text-white text-xs font-medium drop-shadow-md">
+                        @LuminaAI <br> <span class="opacity-80 font-light">Generando contenido viral...</span>
                     </div>
                 </div>
             </div>
             
-            <button class="mt-8 bg-black text-white px-10 py-4 rounded-xl font-bold shadow-xl shadow-slate-300 hover:translate-y-[-2px] transition-transform flex items-center gap-2">
-                <span>Exportar Video 1080p</span>
-                <i class="fa-solid fa-download"></i>
+            <button class="mt-8 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-download"></i> Descargar Borrador
             </button>
         </main>
     </section>
@@ -436,7 +455,7 @@
                 <i class="fa-regular fa-envelope text-lg"></i> Usar Email
             </button>
             <p class="text-[10px] text-center text-slate-400 mt-6 leading-relaxed">
-                Al continuar aceptas nuestros términos. <br> Esta es una demo protegida por derechos de autor.
+                Al continuar aceptas nuestros términos.
             </p>
         </div>
     </div>
@@ -458,16 +477,25 @@
             app.classList.remove('flex');
             document.getElementById('landing-page').classList.remove('hidden');
             document.getElementById('navbar').classList.remove('-translate-y-full');
+            
+            // Pausar video al salir
+            const v = document.getElementById('preview-player');
+            v.pause();
         }
 
         window.showAuthModal = () => document.getElementById('auth-modal').classList.replace('hidden', 'flex');
         window.hideAuthModal = () => document.getElementById('auth-modal').classList.replace('flex', 'hidden');
 
+        // --- Video Logic ---
         window.togglePlay = function() {
             const v = document.getElementById('preview-player');
             const icon = document.getElementById('play-icon');
+            
+            // Aseguramos que no esté muteado
+            v.muted = false;
+
             if(v.paused) {
-                v.play();
+                v.play().catch(e => console.log("User interaction needed for audio play"));
                 icon.classList.remove('fa-play');
                 icon.classList.add('fa-pause');
             } else {
@@ -475,6 +503,41 @@
                 icon.classList.add('fa-play');
                 icon.classList.remove('fa-pause');
             }
+        }
+
+        window.selectAvatar = function(element, videoSrc) {
+            // Remove selected class from all
+            document.querySelectorAll('.avatar-item').forEach(el => {
+                el.classList.remove('selected');
+                el.classList.remove('ring-4');
+                el.classList.remove('ring-indigo-500');
+            });
+            
+            // Add selected to clicked
+            element.classList.add('selected');
+            
+            // Update Video Source
+            const player = document.getElementById('preview-player');
+            const icon = document.getElementById('play-icon');
+            
+            // Fade effect simulation
+            player.style.opacity = '0.5';
+            
+            setTimeout(() => {
+                player.src = videoSrc;
+                player.muted = false; // Asegurar audio activo
+                
+                // Intentar reproducir (requiere interacción previa del usuario con el documento)
+                player.play().catch(e => {
+                    console.log("Audio play blocked until interaction");
+                    icon.classList.add('fa-play');
+                    icon.classList.remove('fa-pause');
+                });
+                
+                player.style.opacity = '1';
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            }, 200);
         }
 
         window.handleContact = function(e) {
@@ -491,7 +554,7 @@
             }, 500);
         }
 
-        // --- D3.js Chart Logic (Dark Mode) ---
+        // --- D3.js Chart Logic ---
         document.addEventListener("DOMContentLoaded", () => {
             drawChart();
             window.addEventListener('resize', drawChart);
@@ -523,7 +586,6 @@
             const x = d3.scaleLinear().domain([1, 12]).range([0, width - margin.left - margin.right]);
             const yRoas = d3.scaleLinear().domain([0, 7]).range([height - margin.top - margin.bottom, 0]);
             
-            // Gradients
             const defs = svg.append("defs");
             const gradient = defs.append("linearGradient")
                 .attr("id", "line-gradient")
@@ -535,14 +597,12 @@
             const lineRoas = d3.line().curve(d3.curveCatmullRom).x(d => x(d.day)).y(d => yRoas(d.roas));
             const lineCtr = d3.line().curve(d3.curveCatmullRom).x(d => x(d.day)).y(d => yRoas(d.ctr * 2)); 
 
-            // Grid
             svg.append("g")
                 .attr("class", "grid")
                 .attr("transform", `translate(0,${height - margin.top - margin.bottom})`)
                 .call(d3.axisBottom(x).ticks(6).tickSize(-(height - margin.top - margin.bottom)).tickFormat(""))
                 .selectAll("line").style("stroke", "rgba(255,255,255,0.1)");
 
-            // ROAS Line (Gradient)
             const pathRoas = svg.append("path")
                 .datum(data)
                 .attr("fill", "none")
@@ -551,14 +611,12 @@
                 .attr("d", lineRoas)
                 .attr("filter", "drop-shadow(0 0 8px rgba(74, 222, 128, 0.4))");
             
-            // Animate Line
             const totalLength = pathRoas.node().getTotalLength();
             pathRoas.attr("stroke-dasharray", totalLength + " " + totalLength)
                 .attr("stroke-dashoffset", totalLength)
                 .transition().duration(2500).ease(d3.easeCubicOut)
                 .attr("stroke-dashoffset", 0);
 
-            // CTR Line
             svg.append("path")
                 .datum(data)
                 .attr("fill", "none")
@@ -568,7 +626,6 @@
                 .attr("opacity", 0.5)
                 .attr("d", lineCtr);
 
-            // Interaction
             const tooltip = d3.select("#tooltip");
             
             svg.selectAll(".dot")
