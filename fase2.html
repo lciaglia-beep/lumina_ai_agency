@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Qantica | ENIGMA</title>
+    <title>Qantica | Script to Market</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #050505;
-            --card-bg: rgba(12, 12, 14, 0.7);
+            --card-bg: rgba(12, 12, 14, 0.95); /* Más opaco para mejor rendimiento (menos cálculo de mezcla) */
             --accent-yellow: #FACC15;
-            --accent-dim: rgba(250, 204, 21, 0.1);
+            --accent-blue: #3B82F6;
+            --accent-green: #10B981;
             --text-primary: #F3F4F6;
             --text-secondary: #9CA3AF;
             --border-light: rgba(255, 255, 255, 0.08);
@@ -22,351 +23,467 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             overflow-x: hidden;
-            /* Data Grid Background - Static for performance */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- Optimized Background --- */
+        .bg-grid-fixed {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-color: var(--bg-color);
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
-            background-attachment: fixed;
-            -webkit-tap-highlight-color: transparent;
+            pointer-events: none;
+            /* Eliminamos backdrop-filter global para rendimiento */
         }
 
-        /* --- Scanline Animation (Optimized) --- */
+        /* --- Scanline Animation (Lighter) --- */
         .scanline {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent-yellow), transparent);
-            opacity: 0.15;
-            animation: scan 6s linear infinite;
-            z-index: 50;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.2) 51%);
+            background-size: 100% 4px;
             pointer-events: none;
-            will-change: transform;
+            z-index: 50;
+            opacity: 0.15; /* Reducido para menos impacto visual/rendimiento */
         }
-        @keyframes scan { 
-            0% { transform: translateY(-100vh); } 
-            100% { transform: translateY(100vh); } 
-        }
-
+        
         /* --- Tech Card Styling --- */
         .tech-card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border-radius: 12px;
             position: relative;
             overflow: hidden;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            transition: transform 0.2s ease;
+            /* Renderizado de hardware */
+            transform: translateZ(0); 
         }
 
-        /* Corner accents for Tech look */
-        .tech-card::after {
+        /* Solo aplicamos blur si el dispositivo lo soporta bien (media query prefer-reduced-motion podría usarse aquí también) */
+        @media (min-width: 768px) {
+            .tech-card {
+                backdrop-filter: blur(8px); 
+                -webkit-backdrop-filter: blur(8px);
+                background: rgba(12, 12, 14, 0.85);
+            }
+        }
+
+        .tech-card::before {
             content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .tech-card-hover:hover {
+            border-color: rgba(250, 204, 21, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Corner accents */
+        .corner-accent {
             position: absolute;
             top: -1px; right: -1px;
-            width: 20px; height: 20px;
+            width: 15px; height: 15px;
             border-top: 2px solid var(--accent-yellow);
             border-right: 2px solid var(--accent-yellow);
-            opacity: 0.3;
-            border-radius: 0 16px 0 0;
+            border-radius: 0 12px 0 0;
+            opacity: 0.6;
         }
 
-        /* Mobile touch feedback */
-        .tech-card:active {
-            transform: scale(0.99);
-            border-color: rgba(250, 204, 21, 0.3);
-        }
-
-        @media (hover: hover) {
-            .tech-card:hover {
-                border-color: rgba(250, 204, 21, 0.4);
-                transform: translateY(-2px);
-                box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-            }
-            .tech-card:hover::after { opacity: 1; }
-        }
-
-        /* Typography & Utilities */
+        /* Typography */
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        .text-glow {
-            text-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
-        }
+        .text-glow { text-shadow: 0 0 20px rgba(250, 204, 21, 0.15); }
 
-        /* Visual Bars */
-        .segment-bar {
-            height: 6px;
-            background: #1f2937;
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
-        .segment-fill {
-            height: 100%;
-            background: var(--accent-yellow);
-            position: relative;
-        }
-        /* Striped pattern overlay for bars */
-        .segment-fill::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: linear-gradient(45deg,rgba(0,0,0,.15) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.15) 50%,rgba(0,0,0,.15) 75%,transparent 75%,transparent);
-            background-size: 1rem 1rem;
-        }
-
-        /* Layout Grid */
-        .grid-enigma {
+        /* Grid Layout */
+        .grid-dashboard {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
-            max-width: 1200px;
+            gap: 20px;
+            max-width: 1280px;
             margin: 0 auto;
-            padding-bottom: 40px;
+            padding-bottom: 60px;
         }
 
         @media (min-width: 1024px) {
-            .grid-enigma {
+            .grid-dashboard {
                 grid-template-columns: repeat(12, 1fr);
-                gap: 24px;
             }
-            .col-span-8 { grid-column: span 8; }
+            .col-span-3 { grid-column: span 3; }
             .col-span-4 { grid-column: span 4; }
-            .col-span-12 { grid-column: span 12; }
             .col-span-6 { grid-column: span 6; }
+            .col-span-8 { grid-column: span 8; }
+            .col-span-12 { grid-column: span 12; }
         }
 
         /* Animations */
-        .fade-up {
-            animation: fadeUp 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards; /* Más rápido */
             opacity: 0;
-            transform: translateY(15px);
+            transform: translateY(10px);
         }
-        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* Badge */
-        .status-badge {
+        /* Tag Styling */
+        .tech-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            background: rgba(250, 204, 21, 0.05);
-            border: 1px solid rgba(250, 204, 21, 0.2);
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
             border-radius: 4px;
-            color: var(--accent-yellow);
-            font-size: 0.65rem;
-            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            color: #d1d5db;
         }
-        .status-dot {
-            width: 6px; height: 6px;
+        .tech-tag.highlight {
+            background: rgba(250, 204, 21, 0.1);
+            border-color: rgba(250, 204, 21, 0.3);
+            color: var(--accent-yellow);
+        }
+
+        /* --- FACTORY ANIMATION STYLES --- */
+        .factory-container {
+            position: relative;
+            padding: 20px 0;
+            overflow: hidden;
+        }
+        
+        .factory-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+
+        /* The Moving IP "Packet" */
+        .ip-packet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
             background: var(--accent-yellow);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--accent-yellow);
+            box-shadow: 0 0 10px var(--accent-yellow);
+            z-index: 2;
+        }
+
+        /* Animation for Input (Left to Center) */
+        .anim-input {
+            top: 50%; left: 0;
+            animation: moveInput 3s infinite linear;
+        }
+        @keyframes moveInput {
+            0% { left: 5%; opacity: 0; }
+            10% { opacity: 1; }
+            45% { left: 45%; opacity: 1; }
+            50% { left: 50%; opacity: 0; transform: scale(2); } /* Merges into factory */
+            100% { left: 50%; opacity: 0; }
+        }
+
+        /* Animation for Output (Center to Branches) */
+        .anim-output-1 { animation: moveOutput1 3s infinite linear; animation-delay: 1.5s; top: 50%; left: 50%; }
+        .anim-output-2 { animation: moveOutput2 3s infinite linear; animation-delay: 1.5s; top: 50%; left: 50%; }
+        .anim-output-3 { animation: moveOutput3 3s infinite linear; animation-delay: 1.5s; top: 50%; left: 50%; }
+
+        @keyframes moveOutput1 {
+            0% { opacity: 0; transform: translate(0, 0); }
+            10% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-100px, 80px); } /* To Visión/Left */
+        }
+        @keyframes moveOutput2 {
+            0% { opacity: 0; transform: translate(0, 0); }
+            10% { opacity: 1; }
+            100% { opacity: 0; transform: translate(0, 80px); } /* To Tech/Center */
+        }
+        @keyframes moveOutput3 {
+            0% { opacity: 0; transform: translate(0, 0); }
+            10% { opacity: 1; }
+            100% { opacity: 0; transform: translate(100px, 80px); } /* To Market/Right */
+        }
+
+        .pulsing-core {
+            animation: pulseCore 3s infinite ease-in-out;
+        }
+        @keyframes pulseCore {
+            0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.1); transform: scale(1); }
+            50% { box-shadow: 0 0 30px rgba(250, 204, 21, 0.3); transform: scale(1.05); }
+        }
+
+        .factory-node {
+            transition: all 0.3s ease;
+        }
+        .factory-node:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.2);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col pt-12 px-4 md:px-6">
+<body class="min-h-screen pt-8 px-4 md:px-6">
 
+    <div class="bg-grid-fixed"></div>
     <div class="scanline"></div>
 
     <!-- Header -->
-    <header class="max-w-4xl mx-auto text-center mb-10 md:mb-16 fade-up">
-        <div class="flex items-center justify-center gap-3 mb-4">
-            <div class="h-px w-8 md:w-12 bg-yellow-500/30"></div>
-            <span class="mono text-[10px] md:text-xs text-yellow-500 tracking-[0.2em] md:tracking-[0.4em] uppercase">Algoritmo Activo</span>
-            <div class="h-px w-8 md:w-12 bg-yellow-500/30"></div>
+    <header class="max-w-5xl mx-auto text-center mb-10 fade-in">
+        <div class="flex items-center justify-center gap-3 mb-3 opacity-80">
+            <div class="h-px w-8 bg-yellow-500"></div>
+            <span class="mono text-[10px] text-yellow-500 tracking-[0.3em] uppercase">Qantica Intelligence</span>
+            <div class="h-px w-8 bg-yellow-500"></div>
         </div>
-        <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tighter text-glow">
-            ENIGMA
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tighter text-glow">
+            COMERCIALIZACIÓN
         </h1>
-        <p class="text-xs md:text-sm text-gray-400 mono uppercase tracking-wider max-w-md mx-auto leading-relaxed">
-            Inteligencia de Mercado <span class="text-yellow-500">+</span> Estadísticas
+        <h2 class="text-lg text-yellow-500/90 font-light tracking-wide mb-4">Script to Market</h2>
+        <p class="text-xs text-gray-400 max-w-2xl mx-auto leading-relaxed border-t border-white/10 pt-4 hidden md:block">
+            Análisis avanzado para maximizar el potencial de la Propiedad Intelectual. Evaluamos no solo la película, sino el ecosistema de productos derivados.
         </p>
     </header>
 
-    <main class="grid-enigma">
+    <main class="grid-dashboard">
 
-        <!-- CARD 1: MAIN ANALYSIS (AUDIENCIA) -->
-        <div class="tech-card col-span-12 lg:col-span-8 p-6 md:p-8 fade-up" style="animation-delay: 0.1s;">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-                        Análisis de Audiencia
-                    </h2>
-                    <p class="text-xs text-gray-500 mono mt-1">EQUIPO TECNOLÓGICO (CUALITATIVA + CUANTITATIVA)</p>
-                </div>
-                <div class="status-badge">
-                    <span class="status-dot"></span> Live Data
+        <!-- 1. DEFINICIÓN DEL PRODUCTO -->
+        <div class="tech-card tech-card-hover col-span-12 p-5 fade-in" style="animation-delay: 0.05s;">
+            <div class="corner-accent"></div>
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <div class="flex-1 w-full">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-yellow-500 rounded-sm"></span> Alcance del Análisis
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white/5 p-2 md:p-3 rounded border border-white/5 text-center">
+                            <div class="mono text-[9px] text-gray-500 mb-1">DESTINO</div>
+                            <div class="text-xs font-semibold text-white">Cine vs Streaming</div>
+                        </div>
+                        <div class="bg-white/5 p-2 md:p-3 rounded border border-white/5 text-center">
+                            <div class="mono text-[9px] text-gray-500 mb-1">EXPANSIÓN</div>
+                            <div class="text-xs font-semibold text-white">Libros / Comics</div>
+                        </div>
+                        <div class="bg-white/5 p-2 md:p-3 rounded border border-white/5 text-center">
+                            <div class="mono text-[9px] text-gray-500 mb-1">GAMIFICACIÓN</div>
+                            <div class="text-xs font-semibold text-white">Viabilidad Juego</div>
+                        </div>
+                        <div class="bg-white/5 p-2 md:p-3 rounded border border-white/5 text-center">
+                            <div class="mono text-[9px] text-gray-500 mb-1">VALOR</div>
+                            <div class="text-xs font-semibold text-yellow-400">Explotación IP</div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="grid md:grid-cols-2 gap-8 md:gap-12">
-                <!-- Gráficas -->
-                <div class="space-y-6">
-                    <!-- Stat 1 -->
+        <!-- 2. ANÁLISIS DE AUDIENCIA -->
+        <div class="tech-card tech-card-hover col-span-12 lg:col-span-8 p-6 fade-in" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg class="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    Audiencia & Segmentación
+                </h2>
+                <span class="mono text-[9px] bg-green-500/10 text-green-400 px-2 py-1 rounded border border-green-500/20">LIVE DATA</span>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Columna Izquierda -->
+                <div class="space-y-4 border-r border-white/5 pr-0 md:pr-6">
                     <div>
-                        <div class="flex justify-between mb-2 items-end">
-                            <span class="text-xs text-gray-400 font-bold tracking-wider uppercase">¿Tiene Comunidad?</span>
-                            <span class="mono text-yellow-500 text-sm">Detectando...</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Comunidad Base</span>
+                            <span class="text-yellow-500 font-mono text-xs">Detectada</span>
                         </div>
-                        <div class="segment-bar">
-                            <div class="segment-fill" style="width: 65%"></div>
+                        <div class="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden flex">
+                            <div class="h-full bg-yellow-500 w-[70%]"></div>
                         </div>
-                        <p class="text-[10px] text-gray-600 mt-1 text-right mono">Base de Fans: Sólida</p>
                     </div>
 
-                    <!-- Stat 2 -->
-                    <div>
-                        <div class="flex justify-between mb-2 items-end">
-                            <span class="text-xs text-gray-400 font-bold tracking-wider uppercase">¿Parte de Cero?</span>
-                            <span class="mono text-gray-500 text-sm">35%</span>
+                    <div class="mt-4">
+                        <h4 class="text-[10px] font-bold text-gray-500 mb-2 uppercase">Demografía</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="tech-tag">Gen Z (60%)</span>
+                            <span class="tech-tag">Millennials (30%)</span>
+                            <span class="tech-tag">Urbano</span>
                         </div>
-                        <div class="segment-bar bg-gray-800">
-                            <div class="h-full bg-gray-600" style="width: 35%"></div>
-                        </div>
-                        <p class="text-[10px] text-gray-600 mt-1 text-right mono">Riesgo Calculado</p>
                     </div>
+                </div>
 
-                    <div class="p-3 bg-yellow-500/5 border border-yellow-500/10 rounded-lg mt-4">
-                         <p class="text-xs text-gray-400 leading-relaxed font-mono">
-                            <span class="text-yellow-500">></span> Análisis de tracción inicial completado.
+                <!-- Columna Derecha -->
+                <div class="space-y-3">
+                     <div class="relative p-3 bg-white/5 rounded border-l-2 border-blue-500">
+                        <h5 class="text-blue-400 text-[10px] font-bold mb-1 mono">COMPORTAMIENTO</h5>
+                        <p class="text-gray-300 text-[10px] leading-relaxed">
+                            Consumidores de narrativas complejas, early adopters. Alta propensión Transmedia.
                         </p>
-                    </div>
-                </div>
-
-                <!-- Info Block -->
-                <div class="bg-black/40 rounded-xl p-5 border border-white/5 flex flex-col justify-between">
-                    <div>
-                        <div class="mono text-xs text-gray-500 mb-4 border-b border-white/5 pb-2">PARÁMETROS</div>
-                        <ul class="space-y-3">
-                            <li class="flex justify-between text-sm">
-                                <span class="text-gray-300">Confianza</span>
-                                <span class="mono text-yellow-500">98.2%</span>
-                            </li>
-                            <li class="flex justify-between text-sm">
-                                <span class="text-gray-300">Data Points</span>
-                                <span class="mono text-gray-500">1.2M</span>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="mt-6 pt-4 border-t border-white/5">
-                         <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                            <span class="text-xs text-white font-medium">Algoritmo Predictivo</span>
-                        </div>
-                    </div>
+                     </div>
+                     <div class="relative p-3 bg-white/5 rounded border-l-2 border-purple-500">
+                        <h5 class="text-purple-400 text-[10px] font-bold mb-1 mono">OPORTUNIDAD</h5>
+                        <p class="text-gray-300 text-[10px] leading-relaxed">
+                            Vacío de mercado detectado en subgénero Cyberpunk VOD.
+                        </p>
+                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 2: SEGMENTACIÓN (SIDEBAR) -->
-        <div class="tech-card col-span-12 lg:col-span-4 p-6 md:p-8 fade-up" style="animation-delay: 0.2s;">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-white">Segmentación</h2>
-                    <p class="text-xs text-gray-500 mono mt-1">TARGETING DE PRECISIÓN</p>
-                </div>
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            </div>
-
+        <!-- 3. GÉNERO Y FORMATO -->
+        <div class="tech-card tech-card-hover col-span-12 lg:col-span-4 p-6 fade-in" style="animation-delay: 0.15s;">
+            <div class="corner-accent"></div>
+            <h2 class="text-lg font-bold text-white mb-4">Identidad</h2>
+            
             <div class="space-y-4">
-                <!-- Item 1 -->
-                <div class="p-4 bg-white/5 rounded-lg border-l-2 border-yellow-500 hover:bg-white/10 transition-colors">
-                    <div class="flex justify-between mb-1">
-                        <h4 class="text-white text-xs font-bold uppercase">Demográfico</h4>
-                        <span class="mono text-[10px] text-yellow-500">ID: A-01</span>
-                    </div>
-                    <p class="text-gray-400 text-xs leading-relaxed">Edad, ubicación, nivel socioeconómico. Estructura base.</p>
+                <div>
+                    <div class="mono text-[9px] text-gray-500 uppercase mb-1">Género</div>
+                    <div class="text-xl font-bold text-white tracking-tight">CIENCIA FICCIÓN</div>
                 </div>
 
-                <!-- Item 2 -->
-                <div class="p-4 bg-white/5 rounded-lg border-l-2 border-blue-500 hover:bg-white/10 transition-colors">
-                    <div class="flex justify-between mb-1">
-                        <h4 class="text-white text-xs font-bold uppercase">Psicográfico</h4>
-                        <span class="mono text-[10px] text-blue-400">ID: B-02</span>
-                    </div>
-                    <p class="text-gray-400 text-xs leading-relaxed">Intereses, valores, estilos de vida y comportamiento digital.</p>
-                </div>
-            </div>
-            
-            <div class="mt-6 flex justify-center opacity-30">
-                <div class="w-16 h-16 border border-dashed border-white rounded-full flex items-center justify-center animate-spin-slow">
-                    <div class="w-12 h-12 border border-white rounded-full"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD 3: DOCUMENTO ADICIONAL (GRID INFO) -->
-        <div class="tech-card col-span-12 lg:col-span-12 p-6 md:p-8 fade-up" style="animation-delay: 0.3s;">
-            <div class="mb-6 border-b border-white/5 pb-4">
-                <h3 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-yellow-500 rounded-sm"></span> Documento Adicional
-                </h3>
-            </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- Data Point 1 -->
-                <div class="bg-black/20 p-4 rounded border border-white/5">
-                    <div class="text-[10px] text-gray-500 uppercase mb-1 mono">Género</div>
-                    <div class="text-white font-medium">Thriller / Sci-Fi</div>
-                </div>
-                <!-- Data Point 2 -->
-                <div class="bg-black/20 p-4 rounded border border-white/5">
-                    <div class="text-[10px] text-gray-500 uppercase mb-1 mono">Subgénero</div>
-                    <div class="text-white font-medium">Cyberpunk Noir</div>
-                </div>
-                <!-- Data Point 3 -->
-                <div class="bg-black/20 p-4 rounded border border-white/5">
-                    <div class="text-[10px] text-gray-500 uppercase mb-1 mono">Pantalla Destino</div>
-                    <div class="text-white font-medium">Streaming VOD</div>
-                </div>
-                <!-- Data Point 4 -->
-                <div class="bg-black/20 p-4 rounded border border-white/5">
-                    <div class="text-[10px] text-gray-500 uppercase mb-1 mono">¿Redes Creador?</div>
-                    <div class="flex items-center gap-2 text-green-400 font-medium">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Activas
+                <div>
+                    <div class="mono text-[9px] text-gray-500 uppercase mb-2">Tags</div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tech-tag highlight">Cyberpunk Noir</span>
+                        <span class="tech-tag highlight">Thriller</span>
+                        <span class="tech-tag">Distopía</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 4: CONTRATO INTELIGENTE (FOOTER) -->
-        <div class="tech-card col-span-12 p-6 md:p-8 fade-up bg-gradient-to-r from-yellow-900/10 to-transparent" style="animation-delay: 0.4s;">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <!-- 4. SCRIPT FACTORY MARKET (DINÁMICO) -->
+        <div class="tech-card col-span-12 p-0 fade-in" style="animation-delay: 0.2s; overflow: visible;">
+            
+            <!-- Factory Header Area -->
+            <div class="bg-gradient-to-b from-yellow-900/10 to-transparent p-6 pb-2">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-xl font-bold text-white tracking-widest uppercase flex items-center gap-2">
+                        <svg class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                        SCRIPT FACTORY MARKET
+                    </h2>
+                    <div class="hidden md:flex gap-2">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                        <div class="w-2 h-2 bg-yellow-500/50 rounded-full"></div>
+                        <div class="w-2 h-2 bg-yellow-500/20 rounded-full"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mono mb-4">PROCESAMIENTO DE PROPIEDAD INTELECTUAL > GENERACIÓN DE ACTIVOS</p>
                 
-                <div class="flex items-start gap-4">
-                    <div class="w-10 h-10 rounded bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500 shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <!-- FACTORY ANIMATION VISUALIZATION -->
+                <div class="factory-container h-32 w-full flex justify-center items-center">
+                    <!-- Background Connector Lines -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-20">
+                        <div class="w-full h-px bg-white"></div>
+                        <div class="absolute w-px h-full bg-white left-1/2"></div>
                     </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Contrato Inteligente</h2>
-                        <p class="text-xs text-gray-400">Registro inmutable del proceso de análisis.</p>
+
+                    <!-- Input: Book IP -->
+                    <div class="absolute left-[5%] md:left-[10%] top-1/2 transform -translate-y-1/2 flex flex-col items-center z-10">
+                        <div class="w-10 h-12 bg-yellow-500/20 border border-yellow-500 rounded flex items-center justify-center mb-2">
+                            <span class="text-xl">📜</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-yellow-500 uppercase">Input IP</span>
                     </div>
+
+                    <!-- The Core Machine -->
+                    <div class="w-20 h-20 bg-black border-2 border-yellow-500/50 rounded-full flex items-center justify-center relative z-20 pulsing-core bg-grid-fixed">
+                        <svg class="w-10 h-10 text-white animate-spin-slow" style="animation-duration: 10s;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+
+                    <!-- Moving Packets -->
+                    <div class="ip-packet anim-input"></div>
+                    <div class="ip-packet anim-output-1 bg-blue-400" style="box-shadow: 0 0 10px #60a5fa;"></div>
+                    <div class="ip-packet anim-output-2 bg-purple-400" style="box-shadow: 0 0 10px #c084fc;"></div>
+                    <div class="ip-packet anim-output-3 bg-green-400" style="box-shadow: 0 0 10px #4ade80;"></div>
+                </div>
+            </div>
+
+            <!-- Factory Modules (Output Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-white/10 bg-black/20">
+                
+                <!-- Module 1: Visión -->
+                <div class="p-6 border-b md:border-b-0 md:border-r border-white/10 factory-node hover:bg-white/5 relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full hidden md:block"></div>
+                    <h3 class="text-blue-400 text-xs font-bold uppercase mb-4 text-center">01. Estrategia & IP</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Estratega IP</div>
+                                <div class="text-[10px] text-gray-500">Definición de visión global y long-tail.</div>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Inteligencia IP</div>
+                                <div class="text-[10px] text-gray-500">Análisis de tendencias.</div>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Monetización</div>
+                                <div class="text-[10px] text-gray-500">Modelos de ingreso de capital.</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
-                <!-- Tracker Visual -->
-                <div class="flex-1 w-full md:w-auto grid grid-cols-3 gap-2 md:gap-4">
-                    <!-- Step 1 -->
-                    <div class="text-center">
-                        <div class="text-[10px] uppercase text-gray-500 mb-1">Fase A</div>
-                        <div class="bg-yellow-500/20 border border-yellow-500/30 text-yellow-500 text-xs py-1.5 rounded font-mono">Marketing</div>
-                    </div>
-                    <!-- Step 2 -->
-                    <div class="text-center">
-                        <div class="text-[10px] uppercase text-gray-500 mb-1">Fase B</div>
-                        <div class="bg-white/5 border border-white/10 text-gray-300 text-xs py-1.5 rounded font-mono">Realización</div>
-                    </div>
-                    <!-- Step 3 -->
-                    <div class="text-center">
-                        <div class="text-[10px] uppercase text-gray-500 mb-1">Tipo</div>
-                        <div class="bg-white/5 border border-white/10 text-gray-300 text-xs py-1.5 rounded font-mono">Juego A</div>
-                    </div>
+                <!-- Module 2: Tech & Expansión -->
+                <div class="p-6 border-b md:border-b-0 md:border-r border-white/10 factory-node hover:bg-white/5 relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-purple-500 rounded-full hidden md:block"></div>
+                    <h3 class="text-purple-400 text-xs font-bold uppercase mb-4 text-center">02. Expansión Tech</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Expertos Videojuegos</div>
+                                <div class="text-[10px] text-gray-500">Diseño, mecánicas y puzzles.</div>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Transmedia</div>
+                                <div class="text-[10px] text-gray-500">Expansión a Merch, Música y Marcas.</div>
+                            </div>
+                        </li>
+                         <li class="flex items-start gap-2">
+                            <span class="text-purple-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Equipo Tecnológico</div>
+                                <div class="text-[10px] text-gray-500">Análisis Cuantitativo + Cualitativo.</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Module 3: Mercado -->
+                <div class="p-6 factory-node hover:bg-white/5 relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-green-500 rounded-full hidden md:block"></div>
+                    <h3 class="text-green-400 text-xs font-bold uppercase mb-4 text-center">03. Mercado</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Audiencia</div>
+                                <div class="text-[10px] text-gray-500">Estudio de comportamiento y demanda.</div>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Marketing & Redes</div>
+                                <div class="text-[10px] text-gray-500">Gestión de comunidad.</div>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-green-500 mt-1">▸</span>
+                            <div>
+                                <div class="text-white text-xs font-bold">Producción</div>
+                                <div class="text-[10px] text-gray-500">Viabilidad de cadena y valor del activo.</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
             </div>
@@ -375,9 +492,12 @@
     </main>
 
     <!-- Footer Stats -->
-    <footer class="max-w-6xl mx-auto w-full mt-8 mb-12 flex flex-col md:flex-row justify-between items-center opacity-30 px-4 text-center gap-2 fade-up" style="animation-delay: 0.5s;">
-        <div class="mono text-[10px] tracking-widest text-gray-500 uppercase">Qantica Intelligence Layer v2.0</div>
-        <div class="mono text-[10px] tracking-widest text-gray-500 uppercase">System Status: Optimal</div>
+    <footer class="max-w-6xl mx-auto w-full mb-8 flex flex-col md:flex-row justify-between items-center opacity-40 px-6 text-center gap-2 fade-in pb-8">
+        <div class="mono text-[10px] tracking-widest text-gray-500 uppercase flex items-center gap-2">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            System Optimized (Mobile Ready)
+        </div>
+        <div class="mono text-[10px] tracking-widest text-gray-500 uppercase">Qantica v2.2 // Factory Mode</div>
     </footer>
 
 </body>
