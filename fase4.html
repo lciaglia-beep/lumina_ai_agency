@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Qantica | Fase 4: Pre-Producción</title>
+    <title>Qantica | Producción Operativa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #050505;
-            --card-bg: rgba(12, 12, 14, 0.9);
-            --accent-yellow: #FACC15;
-            --accent-blue: #3B82F6;
-            --text-primary: #F3F4F6;
+            --bg-color: #030304;
+            --card-bg: rgba(20, 20, 23, 0.7);
+            --accent-yellow: #FFD60A;
+            --accent-blue: #0A84FF;
+            --accent-green: #30D158;
+            --accent-purple: #BF5AF2;
+            --accent-red: #FF453A;
+            --text-primary: #F2F2F7;
             --border-light: rgba(255, 255, 255, 0.08);
         }
 
@@ -22,393 +25,660 @@
             color: var(--text-primary);
             overflow-x: hidden;
             background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
             background-attachment: fixed;
-            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- Timeline Line (Desktop) --- */
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            bottom: 100px;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--accent-blue), var(--accent-purple), var(--accent-yellow), transparent);
+            opacity: 0;
+            z-index: 0;
+            display: none;
+            transition: opacity 3s ease-in-out;
+        }
+        .timeline-line.active { opacity: 0.2; } /* Más sutil */
+
+        @media (min-width: 1200px) {
+            .timeline-line { display: block; left: 50%; transform: translateX(-50%); }
         }
 
         /* --- Components --- */
         .premium-card {
             background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
+            border-radius: 16px;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Transición más lenta */
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
         }
 
+        /* Active State Animation Class - SUAVIZADO */
+        .card-active {
+            border-color: rgba(255, 255, 255, 0.3) !important; /* Borde menos agresivo */
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.05); /* Sombra más suave */
+            transform: translateY(-2px); /* Movimiento sutil */
+            background: rgba(30, 30, 35, 0.85);
+        }
+        
+        /* Specific Active Colors - Glow muy sutil */
+        .card-active.border-l-blue-500 { box-shadow: 0 0 20px rgba(10, 132, 255, 0.15); }
+        .card-active.border-t-yellow-500 { box-shadow: 0 0 20px rgba(255, 214, 10, 0.15); }
+        .card-active.border-b-green-500 { box-shadow: 0 0 20px rgba(48, 209, 88, 0.15); }
+        .card-active.border-r-purple-500 { box-shadow: 0 0 20px rgba(191, 90, 242, 0.15); }
+
         .premium-card:hover {
-            border-color: rgba(250, 204, 21, 0.3);
+            border-color: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Titles */
+        /* Section Header */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .section-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            opacity: 0.2;
+            line-height: 1;
+            margin-right: 10px;
+            transition: opacity 1s, color 1s;
+        }
+        .card-active .section-number { opacity: 0.8; text-shadow: 0 0 15px currentColor; }
+
         .section-title {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: #6B7280;
-            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            color: #8E8E93;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        .section-title::before {
-            content: '';
-            width: 8px; height: 8px;
-            background: var(--accent-yellow);
-            border-radius: 2px;
-        }
 
-        /* --- Visual Flow Lines (Bidirectional) --- */
-        .flow-connector {
-            position: absolute;
-            z-index: 0;
-            pointer-events: none;
-            display: none; /* Hidden on mobile */
-        }
-        
-        @media (min-width: 1024px) {
-            .flow-connector { display: block; }
-        }
-
-        .flow-line {
-            stroke: var(--accent-yellow);
-            stroke-width: 2;
-            stroke-dasharray: 10;
-            animation: flowDash 1s linear infinite;
-            opacity: 0.4;
-        }
-        
-        @keyframes flowDash { to { stroke-dashoffset: -20; } }
-
-        /* --- Caja Mágica Visualization --- */
-        .magic-box {
-            background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(0,0,0,0.2));
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 1rem;
-            position: relative;
-        }
-        .magic-box::after {
-            content: 'SUITE';
-            position: absolute;
-            top: 4px; right: 6px;
-            font-size: 8px;
-            color: rgba(255,255,255,0.3);
-            letter-spacing: 1px;
-        }
-
-        /* --- Grid Layout --- */
+        /* Grid Layout */
         .grid-dashboard {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
-            max-width: 1200px;
+            gap: 24px;
+            max-width: 1600px;
             margin: 0 auto;
             position: relative;
-            z-index: 10;
         }
 
-        @media (min-width: 1024px) {
-            .grid-dashboard {
-                grid-template-columns: repeat(12, 1fr);
-                grid-template-rows: auto auto auto;
-            }
+        @media (min-width: 768px) {
+            .grid-dashboard { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1200px) {
+            .grid-dashboard { grid-template-columns: repeat(12, 1fr); }
             .col-span-3 { grid-column: span 3; }
             .col-span-4 { grid-column: span 4; }
-            .col-span-5 { grid-column: span 5; }
             .col-span-6 { grid-column: span 6; }
-            .col-span-7 { grid-column: span 7; }
             .col-span-8 { grid-column: span 8; }
             .col-span-12 { grid-column: span 12; }
-            
-            /* Specific Positioning for Visual Flow */
-            .area-marketing { grid-column: span 5; }
-            .area-system { grid-column: span 7; }
+            .row-span-2 { grid-row: span 2; }
         }
 
         /* Glitch Title */
-        .glitch-text {
-            position: relative;
-            color: white;
-            display: inline-block;
-        }
-        .glitch-text::before, .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: var(--bg-color);
-        }
-        .glitch-text::before {
-            left: 2px;
-            text-shadow: -1px 0 red;
-            clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
-        .glitch-text::after {
-            left: -2px;
-            text-shadow: -1px 0 blue;
-            clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim 2s infinite linear alternate-reverse;
-        }
-        @keyframes glitch-anim {
-            0% { clip: rect(14px, 9999px, 127px, 0); }
-            20% { clip: rect(66px, 9999px, 18px, 0); }
-            40% { clip: rect(104px, 9999px, 12px, 0); }
-            60% { clip: rect(32px, 9999px, 99px, 0); }
-            80% { clip: rect(69px, 9999px, 46px, 0); }
-            100% { clip: rect(5px, 9999px, 98px, 0); }
-        }
-
+        .glitch-wrapper { position: relative; display: inline-block; }
+        .glitch-text { position: relative; z-index: 1; }
+        
         /* Tags */
         .tag {
-            font-size: 0.6rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(255,255,255,0.05);
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
-            color: #9CA3AF;
+            color: #98989D;
+            transition: all 0.5s;
+            cursor: default;
         }
-        
-        .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(15px);
+        .tag.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); }
+
+        /* Comms Panel */
+        .comms-panel {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 280px;
+            max-height: 150px; /* Más pequeño */
+            background: rgba(5, 5, 8, 0.8); /* Más transparente */
+            border-left: 2px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            z-index: 100;
+            font-family: 'JetBrains Mono', monospace;
+            overflow-y: hidden;
+            backdrop-filter: blur(4px);
+            display: none;
+            mask-image: linear-gradient(to bottom, transparent, black 20%);
         }
+        .comms-line { font-size: 0.6rem; margin-bottom: 8px; color: #888; }
+        .comms-time { color: #444; margin-right: 5px; }
+        .comms-user { font-weight: 600; margin-right: 5px; letter-spacing: 0.5px; }
+        .c-exec { color: var(--accent-blue); }
+        .c-fin { color: var(--accent-green); }
+        .c-mkt { color: var(--accent-purple); }
+        .c-ops { color: var(--accent-yellow); }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; transform: translateY(20px); }
         @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        
+        .pulse-text { animation: pulseText 3s infinite ease-in-out; }
+        @keyframes pulseText { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
     </style>
 </head>
-<body class="min-h-screen flex flex-col py-10 px-4 md:px-6 pb-20">
+<body class="min-h-screen p-4 md:p-8 pb-24 relative">
+
+    <!-- Timeline Line Background -->
+    <div class="timeline-line" id="mainTimeline"></div>
 
     <!-- Header -->
-    <header class="max-w-6xl mx-auto w-full mb-10 border-b border-white/10 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 fade-in">
+    <header class="max-w-[1600px] mx-auto w-full mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 fade-in border-b border-white/5 pb-6 relative z-20 bg-[#030304]/80 backdrop-blur-sm">
         <div>
-            <div class="flex items-center gap-2 mb-2">
-                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                <span class="mono text-xs text-red-500 tracking-widest uppercase">Fase Operativa Central</span>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="flex gap-1">
+                    <span class="w-1.5 h-4 bg-red-500 rounded-sm animate-pulse"></span>
+                    <span class="w-1.5 h-4 bg-red-500/50 rounded-sm"></span>
+                    <span class="w-1.5 h-4 bg-red-500/20 rounded-sm"></span>
+                </div>
+                <span class="mono text-xs text-red-500 tracking-[0.2em] uppercase font-bold" id="systemStatus">Standby</span>
             </div>
-            <h1 class="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight leading-tight">
-                Fase 4 <span class="text-gray-700 mx-2">/</span> <span class="glitch-text uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400" data-text="Pre-Producción">Pre-Producción</span>
+            <h1 class="text-4xl md:text-6xl font-bold text-white tracking-tight leading-none glitch-wrapper">
+                <span class="glitch-text">PRODUCCIÓN</span>
             </h1>
-            <p class="text-gray-500 mono text-xs md:text-sm uppercase tracking-widest max-w-md">Estrategia de Negocio & Data Center</p>
+            <p class="text-gray-400 mt-2 text-lg font-light">Estructura Operativa & Estrategia Global</p>
         </div>
-        <div class="text-right hidden md:block">
-            <div class="mono text-xs text-gray-600">SYSTEM STATUS</div>
-            <div class="text-yellow-500 font-bold tracking-widest">DATA CENTER ONLINE</div>
+        
+        <div class="flex flex-col items-end gap-2">
+            <!-- Project Badge -->
+            <div class="bg-[#1C1C1E] border border-white/10 px-5 py-3 rounded-lg flex items-center gap-4 shadow-lg transition duration-300" id="projectBadge">
+                <div>
+                    <div class="text-[10px] text-gray-500 uppercase mono mb-1 tracking-wider">Project ID</div>
+                    <div class="text-white font-bold tracking-wide">BADNIGHT</div>
+                </div>
+                <div class="h-8 w-px bg-white/10"></div>
+                <div>
+                    <div class="text-[10px] text-gray-500 uppercase mono mb-1 tracking-wider">Runtime</div>
+                    <div class="text-yellow-500 font-mono">110 MIN</div>
+                </div>
+            </div>
+            <div class="text-[9px] text-gray-600 mono uppercase tracking-widest mt-1 opacity-0 fade-in" style="animation-delay: 1s;">
+                Auto-Sequence: Engaged
+            </div>
         </div>
     </header>
 
-    <main class="grid-dashboard fade-in" style="animation-delay: 0.2s;">
+    <main class="grid-dashboard fade-in" style="animation-delay: 0.3s;">
 
-        <!-- A. DATA CENTER (Gestión de Producción) -->
-        <div class="premium-card col-span-12 p-6 md:p-8 relative">
-            <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <!-- 01. HEAD OF PRODUCTION -->
+        <div id="card-01" class="premium-card card-blue col-span-12 md:col-span-6 p-8 border-l-4 border-l-blue-500">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-blue-500">01</span>
+                    <div class="section-title text-blue-400">Liderazgo / Producción</div>
+                </div>
+                <span id="badge-01" class="mono text-[10px] bg-blue-500/10 text-blue-400 px-2 py-1 rounded transition-all duration-1000">CMD CENTER</span>
             </div>
-
-            <div class="section-title text-blue-400">PILAR A: DATA CENTER</div>
             
-            <div class="grid md:grid-cols-12 gap-8 relative z-10">
-                <!-- Input Flow -->
-                <div class="md:col-span-3 border-r border-white/10 pr-4">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-yellow-500 font-bold mono text-xs">INPUT</span>
-                        <div class="h-px bg-yellow-500/50 flex-1"></div>
-                    </div>
-                    <div class="bg-yellow-500/5 border border-yellow-500/20 p-3 rounded mb-3">
-                        <div class="text-[10px] text-gray-400 uppercase">Fuente</div>
-                        <div class="text-white font-bold text-sm">ENIGMA Stats</div>
-                    </div>
-                    <div class="flex justify-center my-2 text-gray-600">↓</div>
-                    <div class="bg-blue-500/5 border border-blue-500/20 p-3 rounded">
-                        <div class="text-[10px] text-gray-400 uppercase">Salida</div>
-                        <div class="text-white font-bold text-sm">Documento Maestro</div>
-                    </div>
-                </div>
-
-                <!-- Core Operations (Caja Mágica) -->
-                <div class="md:col-span-6">
-                    <h3 class="text-xl text-white font-bold mb-4">Caja Mágica <span class="text-xs font-normal text-gray-500 ml-2">(Suite de Producción)</span></h3>
+            <div class="flex flex-col h-full justify-between">
+                <div>
+                    <h3 class="text-2xl text-white font-bold mb-2">Senior Executive</h3>
+                    <p class="text-sm text-gray-400 mb-6 font-light border-l-2 border-white/10 pl-3">
+                        Figura principal. Supervisa estrategia, desarrollo y producción.
+                    </p>
                     
-                    <div class="grid grid-cols-2 gap-3 mb-6">
-                        <div class="magic-box">
-                            <div class="text-gray-400 text-xs uppercase mb-1">Equipo Core</div>
-                            <ul class="text-sm text-white space-y-1">
-                                <li>• Productor Ejecutivo</li>
-                                <li>• Dir. Producción</li>
-                            </ul>
-                        </div>
-                        <div class="magic-box">
-                            <div class="text-gray-400 text-xs uppercase mb-1">Presupuesto</div>
-                            <div class="text-white font-mono text-sm">Above/Below the Line</div>
-                            <div class="text-[10px] text-green-400 mt-1">Énfasis Operativo</div>
+                    <div class="bg-blue-500/5 rounded-xl p-4 border border-blue-500/10">
+                        <div class="grid grid-cols-2 gap-4" id="responsibilities-grid">
+                            <div class="flex items-center gap-2 text-xs text-gray-300 opacity-30 transition-opacity duration-700" id="resp-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Producción</div>
+                            <div class="flex items-center gap-2 text-xs text-gray-300 opacity-30 transition-opacity duration-700" id="resp-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Finanzas</div>
+                            <div class="flex items-center gap-2 text-xs text-gray-300 opacity-30 transition-opacity duration-700" id="resp-3"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Creativo</div>
+                            <div class="flex items-center gap-2 text-xs text-gray-300 opacity-30 transition-opacity duration-700" id="resp-4"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Mercado</div>
                         </div>
                     </div>
-                    
-                    <div class="bg-black/40 border border-white/5 rounded p-3 flex justify-between items-center">
-                        <span class="text-xs text-gray-400 uppercase">Licitación Activa</span>
-                        <span class="text-xs text-white">Concurso Casas Productoras →</span>
-                    </div>
-                </div>
-
-                <!-- Profiles List Small -->
-                <div class="md:col-span-3 border-l border-white/10 pl-4 flex flex-col justify-center">
-                     <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Roles Clave Asignados</div>
-                     <div class="flex flex-wrap gap-2">
-                        <span class="tag">Storyboard</span>
-                        <span class="tag">Arte</span>
-                        <span class="tag">Dirección</span>
-                        <span class="tag">Sonido</span>
-                        <span class="tag">Montaje</span>
-                        <span class="tag">VFX</span>
-                        <span class="tag">Game Analyst</span>
-                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- B. FINANCIACIÓN (Small Card) -->
-        <div class="premium-card col-span-12 md:col-span-4 p-6">
-            <div class="section-title text-green-400">PILAR B: FINANZAS</div>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span class="text-gray-300 text-sm">Plan Financiero</span>
-                    <span class="text-green-500 text-xs">● Aprobado</span>
+        <!-- 02. EQUIPOS REGIONALES -->
+        <div id="card-02" class="premium-card card-yellow col-span-12 md:col-span-3 p-6 border-t-4 border-t-yellow-500">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-yellow-500">02</span>
+                    <div class="section-title text-yellow-500">Equipos Regionales</div>
                 </div>
-                <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                    <span class="text-gray-300 text-sm">Flujo de Caja</span>
-                    <span class="text-green-500 text-xs">● Activo</span>
+            </div>
+            
+            <div class="flex flex-col gap-3 relative h-full justify-center">
+                <div class="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-yellow-500/30 to-transparent"></div>
+                
+                <div id="team-emea" class="ml-8 p-2 rounded transition duration-700">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">España / Canarias</div>
+                    <div class="text-white font-bold text-sm">EMEA HEADQUARTERS</div>
+                </div>
+                <div id="team-usa" class="ml-8 p-2 rounded transition duration-700">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">USA</div>
+                    <div class="text-white font-bold text-sm">NORTH AMERICA BRIDGE</div>
+                </div>
+                <div id="team-latam" class="ml-8 p-2 rounded transition duration-700">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">LATAM</div>
+                    <div class="text-white font-bold text-sm">LATAM UNIT</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 03. ROLES CLAVE -->
+        <div id="card-03" class="premium-card card-purple col-span-12 md:col-span-3 p-6">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-white">03</span>
+                    <div class="section-title">Roles Clave</div>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="group">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-white font-bold text-sm">Moodboard</span>
+                        <span id="role-status-1" class="text-[9px] border border-gray-700 px-1 rounded text-gray-500 transition-all duration-500">Pending</span>
+                    </div>
+                    <p class="text-xs text-gray-500">Reemplaza Storyboard (etapa posterior).</p>
+                </div>
+                <div class="h-px bg-white/5"></div>
+                <div class="group">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-white font-bold text-sm">Production Designer</span>
+                        <span id="role-status-2" class="text-[9px] border border-gray-700 px-1 rounded text-gray-500 transition-all duration-500">Pending</span>
+                    </div>
+                    <p class="text-xs text-gray-500">Coordina Arte + Vestuario + Maquillaje.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-2" id="roles-tags">
+                    <span class="tag">Sonido</span> <span class="tag">VFX</span> <span class="tag">Montaje</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 04. PRESUPUESTO -->
+        <div id="card-04" class="premium-card card-green col-span-12 md:col-span-4 p-8 border-b-4 border-b-green-500">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-green-500">04</span>
+                    <div class="section-title text-green-500">Presupuesto</div>
+                </div>
+            </div>
+            <div class="space-y-5">
+                <div class="flex gap-4 items-start group">
+                    <div class="text-green-500 font-mono font-bold text-lg">A</div>
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Ballpark</h4>
+                        <div class="text-xs text-gray-400 transition-colors duration-500" id="budget-status">Calculando...</div>
+                    </div>
                 </div>
                 
-                <div class="mt-4 pt-2">
-                    <div class="text-[10px] text-gray-500 uppercase mb-2">Alianzas Comerciales</div>
-                    <div class="flex gap-2">
-                        <div class="bg-white/5 px-2 py-1 rounded text-xs text-gray-300">Brand Partners</div>
-                        <div class="bg-white/5 px-2 py-1 rounded text-xs text-gray-300">Product Placement</div>
-                    </div>
+                <!-- Animated Budget Display -->
+                <div class="bg-black/40 p-4 rounded border border-green-500/20 text-center relative overflow-hidden">
+                    <div class="text-[10px] text-green-400 font-mono uppercase mb-1">ESTIMACIÓN ACTUAL</div>
+                    <div class="text-2xl text-white font-mono font-bold tracking-widest transition-colors duration-500" id="budget-counter">USD 0.0M</div>
+                    <div class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-1000" style="width: 0%" id="budget-bar"></div>
                 </div>
             </div>
         </div>
 
-        <!-- C. MARKETING IP (The Source of Data for Distribution) -->
-        <div class="premium-card col-span-12 md:col-span-8 p-6 relative area-marketing">
-            <!-- Visual Connector Point -->
-            <div class="hidden md:block absolute -right-3 top-1/2 w-6 h-6 bg-yellow-500 rounded-full z-20 shadow-[0_0_15px_rgba(250,204,21,0.6)] border-4 border-[#1a1a1a]"></div>
-            
-            <div class="section-title text-purple-400">PILAR C: MARKETING IP</div>
-            <p class="text-xs text-gray-500 mb-4">Marketing de Producción (No General). Construcción de IP.</p>
+        <!-- 05. FINANZAS -->
+        <div id="card-05" class="premium-card card-green col-span-12 md:col-span-4 p-8">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-green-500">05</span>
+                    <div class="section-title text-green-500">Finanzas & Tiempo</div>
+                </div>
+            </div>
+            <div class="mb-6">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-sm text-gray-300 font-bold">Timeline</span>
+                    <span class="mono text-xs text-green-400 bg-green-900/20 px-2 py-1 rounded transition-all" id="timeline-badge">INIT</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden relative">
+                    <div id="timeline-progress" class="bg-gradient-to-r from-green-600 to-emerald-400 h-full w-0 transition-all duration-[3000ms]"></div>
+                </div>
+                <div class="flex justify-between text-[9px] text-gray-500 mt-2 font-mono uppercase">
+                    <span id="tm-1" class="transition-colors duration-500">Lean Start</span> <span id="tm-2" class="transition-colors duration-500">Escalado</span> <span id="tm-3" class="transition-colors duration-500">Full Prod</span>
+                </div>
+            </div>
+        </div>
 
-            <div class="grid grid-cols-2 gap-6">
+        <!-- 06. MARKETING -->
+        <div id="card-06" class="premium-card card-purple col-span-12 md:col-span-4 p-8 border-r-4 border-r-purple-500">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-purple-400">06</span>
+                    <div class="section-title text-purple-400">Marketing Strategy</div>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-6 font-light">Contemplado desde el inicio.</p>
+            <div class="bg-purple-900/10 p-4 rounded-xl border border-purple-500/20 text-center relative">
+                <div id="synergy-line" class="absolute top-1/2 left-1/4 right-1/4 h-px bg-purple-500/50 transform -translate-y-1/2 scale-x-0 transition-transform duration-1500"></div>
+                <div class="text-xs text-purple-300 uppercase font-bold mb-2">Sinergia</div>
+                <div class="flex justify-center items-center gap-4 text-xs relative z-10">
+                    <div id="syn-prod" class="transition-colors duration-500"><span class="block text-xl">🧠</span>Productora</div>
+                    <div class="text-purple-500 font-bold bg-[#151518] p-1 rounded-full">+</div>
+                    <div id="syn-plat" class="transition-colors duration-500"><span class="block text-xl">💰</span>Plataforma</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 07. PLATAFORMA Y MERCADO -->
+        <div id="card-07" class="premium-card card-blue col-span-12 md:col-span-6 p-8">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-blue-400">07</span>
+                    <div class="section-title text-blue-400">Plataforma & Mercado</div>
+                </div>
+                <div class="text-[10px] bg-white/5 px-2 py-1 rounded text-gray-400 transition-colors duration-500" id="market-status">ANALYSIS</div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 h-full">
                 <div>
-                    <h4 class="text-white font-bold text-sm mb-3">Activación SUPERFAN</h4>
-                    <ul class="text-xs text-gray-400 space-y-2">
-                        <li class="flex items-center gap-2"><span class="w-1 h-1 bg-purple-500 rounded-full"></span> Universo Transmedia</li>
-                        <li class="flex items-center gap-2"><span class="w-1 h-1 bg-purple-500 rounded-full"></span> Música & Talento</li>
-                        <li class="flex items-center gap-2"><span class="w-1 h-1 bg-purple-500 rounded-full"></span> Influencers</li>
+                    <h4 class="text-white font-bold text-sm mb-3">Requerimientos</h4>
+                    <ul class="space-y-2 text-xs text-gray-400" id="req-list">
+                        <li class="p-2 bg-white/5 rounded border border-transparent transition duration-500">Stakeholders Directos</li>
+                        <li class="p-2 bg-white/5 rounded border border-transparent transition duration-500">Specs Tecnológicas</li>
+                        <li class="p-2 bg-white/5 rounded border border-transparent transition duration-500">Formatos Internos</li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-white font-bold text-sm mb-3">Engagement Temprano</h4>
-                    <div class="bg-purple-500/10 border border-purple-500/20 p-3 rounded">
-                        <div class="flex justify-between mb-1">
-                            <span class="text-xs text-purple-300">De-risking</span>
-                            <span class="text-[10px] text-purple-400 mono">DATA FEED</span>
+                    <h4 class="text-white font-bold text-sm mb-3">Benchmark</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Potencial IP</span><span class="text-white">Calculando...</span></div>
+                            <div class="w-full bg-gray-800 h-1 rounded-full"><div id="bench-bar-2" class="bg-yellow-500 w-0 h-full rounded-full transition-all duration-2000"></div></div>
                         </div>
-                        <p class="text-[10px] text-gray-400 leading-tight">
-                            Estrategia de votación temprana y extras para película.
-                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- MIDDLE CONNECTOR (Desktop Only) -->
-        <div class="col-span-12 h-8 relative hidden md:block">
-            <!-- SVG Line connecting Marketing to System -->
-            <svg class="absolute top-0 left-0 w-full h-full overflow-visible z-0">
-                <!-- Path from right of Marketing (approx 66% width) to top of System (approx 50% width) -->
-                <path d="M 780 -30 V 20 H 600 V 40" fill="none" stroke="#333" stroke-width="2" />
-                <path class="flow-line" d="M 780 -30 V 20 H 600 V 40" fill="none" />
-                
-                <!-- Label on line -->
-                <rect x="630" y="5" width="120" height="20" rx="4" fill="#050505" stroke="#333" />
-                <text x="690" y="19" font-family="JetBrains Mono" font-size="9" fill="#FACC15" text-anchor="middle">ENIGMA: ADAPTACIÓN</text>
-            </svg>
-        </div>
-
-        <!-- D. SISTEMA BIDIRECCIONAL (Distribution) -->
-        <div class="premium-card col-span-12 p-6 md:p-8 area-system relative">
-            <!-- Connector Point Top -->
-            <div class="hidden md:block absolute left-1/2 -top-3 w-6 h-6 bg-yellow-500 rounded-full z-20 shadow-[0_0_15px_rgba(250,204,21,0.6)] border-4 border-[#1a1a1a] transform -translate-x-1/2"></div>
-
-            <div class="section-title text-yellow-500 w-full flex justify-between">
-                <span>PILAR D: SISTEMA BIDIRECCIONAL</span>
-                <span class="text-[10px] bg-yellow-500/10 px-2 py-1 rounded text-yellow-500 normal-case tracking-normal">Supervisado por Agente de Ventas</span>
-            </div>
-
-            <div class="flex flex-col md:flex-row gap-8 items-center">
-                
-                <!-- Algorithm Core -->
-                <div class="w-full md:w-1/3 bg-white/5 p-4 rounded-xl border border-white/10 text-center">
-                    <div class="text-xs text-gray-400 uppercase tracking-widest mb-2">Algoritmo Decide</div>
-                    <div class="text-2xl font-bold text-white mb-1">Go-to-Market</div>
-                    <div class="text-[10px] text-gray-500 mono">Ventanas de Exhibición Dinámicas</div>
-                    <div class="mt-4 flex justify-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-75"></div>
-                        <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse delay-150"></div>
-                    </div>
+        <!-- 08. GO TO MARKET -->
+        <div id="card-08" class="premium-card card-yellow col-span-12 md:col-span-6 p-8">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-yellow-500">08</span>
+                    <div class="section-title text-yellow-500">Go-to-Market</div>
                 </div>
-
-                <!-- Routing Output -->
-                <div class="w-full md:w-2/3 grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="p-3 border border-white/10 rounded hover:bg-white/5 transition-colors text-center">
-                        <div class="text-xl mb-1">📺</div>
-                        <div class="text-xs font-bold text-white">Directo</div>
-                        <div class="text-[9px] text-gray-500">YouTube / Redes</div>
-                    </div>
-                    <div class="p-3 border border-white/10 rounded hover:bg-white/5 transition-colors text-center">
-                        <div class="text-xl mb-1">🏆</div>
-                        <div class="text-xs font-bold text-white">Festivales</div>
-                        <div class="text-[9px] text-gray-500">Prestigio</div>
-                    </div>
-                    <div class="p-3 border border-white/10 rounded hover:bg-white/5 transition-colors text-center">
-                        <div class="text-xl mb-1">🎬</div>
-                        <div class="text-xs font-bold text-white">Streaming</div>
-                        <div class="text-[9px] text-gray-500">SVOD / AVOD</div>
-                    </div>
-                    <div class="p-3 border border-yellow-500/30 bg-yellow-500/5 rounded text-center">
-                        <div class="text-xl mb-1">🚀</div>
-                        <div class="text-xs font-bold text-yellow-500">Crowdfunding</div>
-                        <div class="text-[9px] text-gray-500">Juego / Película</div>
-                    </div>
+                <div class="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">ROUTING</div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="market-card p-4 rounded bg-white/5 border border-transparent transition duration-500 text-center" id="chan-1">
+                    <span class="text-2xl block mb-2">📺</span>
+                    <div class="text-xs font-bold text-white">Directo</div>
+                </div>
+                <div class="market-card p-4 rounded bg-white/5 border border-transparent transition duration-500 text-center" id="chan-2">
+                    <span class="text-2xl block mb-2">🏆</span>
+                    <div class="text-xs font-bold text-white">Festivales</div>
+                </div>
+                <div class="market-card p-4 rounded bg-white/5 border border-transparent transition duration-500 text-center" id="chan-3">
+                    <span class="text-2xl block mb-2">🎬</span>
+                    <div class="text-xs font-bold text-white">Streaming</div>
+                </div>
+                <div class="market-card p-4 rounded bg-white/5 border border-transparent transition duration-500 text-center" id="chan-4">
+                    <span class="text-2xl block mb-2">🚀</span>
+                    <div class="text-xs font-bold text-white">Crowd</div>
                 </div>
             </div>
         </div>
 
-        <!-- Satellites / Resources Footer -->
-        <div class="col-span-12 mt-8 pt-8 border-t border-white/5">
-            <h5 class="text-xs text-gray-500 uppercase tracking-widest mb-4">Satélites Activos en Distribución</h5>
-            <div class="flex flex-wrap gap-4 text-xs text-gray-400 font-mono">
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gray-600 rounded-full"></span> Agente de Ventas</span>
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gray-600 rounded-full"></span> Distribuidor</span>
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gray-600 rounded-full"></span> Asociaciones</span>
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gray-600 rounded-full"></span> Festivales Virtuales</span>
-                <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-gray-600 rounded-full"></span> Conexión Plataformas</span>
+        <!-- 09. CASTING & LOCALIZACIONES -->
+        <div id="card-09" class="premium-card card-yellow col-span-12 p-6 md:p-8 border-b-4 border-b-yellow-500">
+            <div class="section-header">
+                <div class="flex items-center">
+                    <span class="section-number text-yellow-500">09</span>
+                    <div class="section-title text-yellow-500">Casting & Scouting</div>
+                </div>
             </div>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="flex-1 bg-white/5 p-4 rounded-lg flex items-center gap-4 border border-transparent transition duration-700" id="loc-1">
+                    <div class="text-3xl">🎭</div>
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Casting</h4>
+                        <p class="text-xs text-gray-400">Buscando talento...</p>
+                    </div>
+                </div>
+                <div class="flex-1 bg-white/5 p-4 rounded-lg flex items-center gap-4 border border-transparent transition duration-700" id="loc-2">
+                    <div class="text-3xl">🏝️</div>
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Hotel de Lujo</h4>
+                        <p class="text-xs text-gray-400">Scouting en progreso...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Satellite Footer with status -->
+        <div class="col-span-12 mt-4 pt-6 border-t border-white/5 text-center">
+             <div class="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-gray-500 mono uppercase transition-all duration-1000" id="network-status">
+                 Network Standby
+             </div>
         </div>
 
     </main>
 
+    <!-- Communications Overlay Panel -->
+    <div class="comms-panel" id="commsPanel">
+        <div class="text-xs text-gray-500 uppercase mb-2 border-b border-white/10 pb-1 flex justify-between">
+            <span>System Log</span>
+            <span class="text-green-500 animate-pulse">●</span>
+        </div>
+        <div id="commsContent"></div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        const logContent = document.getElementById('commsContent');
+        const commsPanel = document.getElementById('commsPanel');
+        
+        function addLog(user, typeClass, message) {
+            const time = new Date().toLocaleTimeString('es-ES', { hour12: false, hour: "numeric", minute: "numeric" });
+            const div = document.createElement('div');
+            div.className = 'comms-line fade-in';
+            div.innerHTML = `<span class="comms-time">${time}</span><span class="comms-user ${typeClass}">${user}:</span> <span class="text-gray-400">${message}</span>`;
+            
+            // Limit logs to keep it clean
+            if (logContent.children.length > 3) {
+                logContent.removeChild(logContent.lastChild);
+            }
+            logContent.prepend(div);
+        }
+
+        function activateCard(id) {
+            const card = document.getElementById(id);
+            if(card) {
+                card.classList.add('card-active');
+                
+                // Smooth scroll for mobile/tablet if offscreen
+                if(window.innerWidth < 1024) {
+                    const rect = card.getBoundingClientRect();
+                    const isInViewport = (
+                        rect.top >= 0 &&
+                        rect.left >= 0 &&
+                        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                    );
+                    if(!isInViewport) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+
+        // --- SIMULATION AUTO-START ---
+        window.onload = function() {
+            setTimeout(startSimulation, 2000); // Start after 2s
+        };
+
+        function startSimulation() {
+            commsPanel.style.display = 'block';
+            document.getElementById('systemStatus').innerText = "SYSTEM: INITIALIZING...";
+            document.getElementById('systemStatus').classList.add('pulse-text');
+            document.getElementById('mainTimeline').classList.add('active');
+
+            // 0s: Start Log
+            addLog('SYSTEM', 'text-gray-500', 'Iniciando protocolo Badnight...');
+            
+            // 2s: Phase 1 Leadership (Slow start)
+            setTimeout(() => {
+                activateCard('card-01');
+                document.getElementById('badge-01').classList.replace('bg-blue-500/10', 'bg-blue-500');
+                document.getElementById('badge-01').classList.replace('text-blue-400', 'text-white');
+                addLog('EXEC', 'c-exec', 'Senior Executive conectado.');
+                
+                // Animate responsibilities gently
+                setTimeout(() => document.getElementById('resp-1').style.opacity = 0.8, 500);
+                setTimeout(() => document.getElementById('resp-2').style.opacity = 0.8, 1500);
+                setTimeout(() => document.getElementById('resp-3').style.opacity = 0.8, 2500);
+                setTimeout(() => document.getElementById('resp-4').style.opacity = 0.8, 3500);
+            }, 2000);
+
+            // 7s: Phase 2 Teams (5s gap)
+            setTimeout(() => {
+                activateCard('card-02');
+                addLog('OPS', 'c-ops', 'Verificando unidades regionales...');
+                
+                setTimeout(() => {
+                    document.getElementById('team-emea').classList.add('bg-white/10');
+                }, 1000);
+                setTimeout(() => {
+                    document.getElementById('team-usa').classList.add('bg-white/10');
+                }, 2000);
+                setTimeout(() => {
+                    document.getElementById('team-latam').classList.add('bg-white/10');
+                    addLog('LATAM', 'text-white', 'Unidad en línea.');
+                }, 3000);
+            }, 7000);
+
+            // 13s: Phase 3 Roles (6s gap)
+            setTimeout(() => {
+                activateCard('card-03');
+                document.getElementById('role-status-1').innerText = "OK";
+                document.getElementById('role-status-1').className = "text-[9px] bg-purple-500/50 text-white px-1 rounded";
+                document.getElementById('role-status-2').innerText = "OK";
+                document.getElementById('role-status-2').className = "text-[9px] bg-purple-500/50 text-white px-1 rounded";
+                
+                document.querySelectorAll('#roles-tags .tag').forEach((tag, i) => {
+                    setTimeout(() => tag.classList.add('active'), i * 500);
+                });
+                addLog('HR', 'c-mkt', 'Roles clave listos.');
+            }, 13000);
+
+            // 19s: Budget (6s gap)
+            setTimeout(() => {
+                activateCard('card-04');
+                activateCard('card-05'); 
+                document.getElementById('budget-status').innerText = "APROBADO";
+                document.getElementById('budget-status').className = "text-xs text-green-400 font-bold";
+                
+                addLog('FIN', 'c-fin', 'Calculando estructura...');
+                
+                // Slower Counter
+                let count = 0.0;
+                const interval = setInterval(() => {
+                    count += 0.1;
+                    document.getElementById('budget-counter').innerText = "USD " + count.toFixed(1) + "M";
+                    document.getElementById('budget-bar').style.width = (count / 2.0 * 100) + "%";
+                    if(count >= 2.0) {
+                        clearInterval(interval);
+                        document.getElementById('budget-counter').innerText = "USD 2.0M";
+                        document.getElementById('budget-counter').classList.add('text-green-400');
+                        addLog('FIN', 'c-fin', 'Fondos asignados.');
+                    }
+                }, 200); // Slower counting
+
+                // Timeline
+                document.getElementById('timeline-progress').style.width = "33%";
+                document.getElementById('timeline-badge').innerText = "PHASE 1";
+                document.getElementById('tm-1').classList.add('text-green-400');
+            }, 19000);
+
+            // 26s: Marketing (7s gap)
+            setTimeout(() => {
+                activateCard('card-06');
+                document.getElementById('synergy-line').style.transform = "translateY(-50%) scaleX(1)";
+                document.getElementById('syn-prod').classList.add('text-purple-300');
+                document.getElementById('syn-plat').classList.add('text-purple-300');
+                addLog('MKT', 'c-mkt', 'Sinergia activada.');
+            }, 26000);
+
+            // 32s: Market (6s gap)
+            setTimeout(() => {
+                activateCard('card-07');
+                activateCard('card-08');
+                document.getElementById('market-status').innerText = "MATCH";
+                document.getElementById('market-status').classList.replace('text-gray-400', 'text-blue-400');
+                document.getElementById('market-status').classList.add('border-blue-500');
+                
+                document.querySelectorAll('#req-list li').forEach((li, i) => {
+                    setTimeout(() => li.classList.replace('border-transparent', 'border-blue-500/30'), i * 800);
+                });
+                
+                document.getElementById('bench-bar-2').style.width = "90%";
+                
+                // Highlight channels slowly
+                setTimeout(() => document.getElementById('chan-2').classList.add('bg-yellow-500/10', 'border-yellow-500/50'), 1000); 
+                setTimeout(() => document.getElementById('chan-3').classList.add('bg-yellow-500/10', 'border-yellow-500/50'), 2500); 
+                addLog('DIST', 'c-ops', 'Ruta priorizada: Festivales + Streaming.');
+
+            }, 32000);
+
+            // 38s: Locations (6s gap)
+            setTimeout(() => {
+                activateCard('card-09');
+                document.getElementById('loc-1').classList.replace('border-transparent', 'border-yellow-500/30');
+                document.getElementById('loc-1').querySelector('p').innerText = "Seleccionado";
+                document.getElementById('loc-1').querySelector('p').classList.add('text-yellow-400');
+
+                document.getElementById('loc-2').classList.replace('border-transparent', 'border-yellow-500/30');
+                document.getElementById('loc-2').querySelector('p').innerText = "Confirmado: Canarias";
+                document.getElementById('loc-2').querySelector('p').classList.add('text-green-400');
+                
+                addLog('OPS', 'c-ops', 'Localización lista.');
+            }, 38000);
+
+            // 42s: End
+            setTimeout(() => {
+                document.getElementById('systemStatus').innerText = "OPERATIVA";
+                document.getElementById('systemStatus').classList.remove('pulse-text');
+                document.getElementById('systemStatus').classList.add('text-green-500');
+                document.getElementById('network-status').innerText = "NETWORK ONLINE";
+                document.getElementById('network-status').classList.add('text-green-400', 'border-green-500/30');
+                addLog('SYS', 'text-white', 'PRODUCCIÓN EN MARCHA.');
+            }, 42000);
+        }
+    </script>
 </body>
 </html>
