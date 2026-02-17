@@ -58,22 +58,22 @@
             border: 1px solid var(--border-light);
             border-radius: 16px;
             position: relative;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Transición más lenta */
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             z-index: 10;
         }
 
-        /* Active State Animation Class - SUAVIZADO */
+        /* Active State Animation Class */
         .card-active {
-            border-color: rgba(255, 255, 255, 0.3) !important; /* Borde menos agresivo */
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.05); /* Sombra más suave */
-            transform: translateY(-2px); /* Movimiento sutil */
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
             background: rgba(30, 30, 35, 0.85);
         }
         
-        /* Specific Active Colors - Glow muy sutil */
+        /* Specific Active Colors */
         .card-active.border-l-blue-500 { box-shadow: 0 0 20px rgba(10, 132, 255, 0.15); }
         .card-active.border-t-yellow-500 { box-shadow: 0 0 20px rgba(255, 214, 10, 0.15); }
         .card-active.border-b-green-500 { box-shadow: 0 0 20px rgba(48, 209, 88, 0.15); }
@@ -163,14 +163,31 @@
         }
         .tag.active { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); }
 
+        /* HAZARD STRIP ANIMATION (New Visual) */
+        .hazard-strip {
+            background: repeating-linear-gradient(
+                45deg,
+                var(--accent-yellow),
+                var(--accent-yellow) 10px,
+                #000 10px,
+                #000 20px
+            );
+            animation: moveStrip 2s linear infinite;
+            opacity: 0.8;
+        }
+        @keyframes moveStrip {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+
         /* Comms Panel */
         .comms-panel {
             position: fixed;
             bottom: 30px;
             right: 30px;
             width: 280px;
-            max-height: 150px; /* Más pequeño */
-            background: rgba(5, 5, 8, 0.8); /* Más transparente */
+            max-height: 150px;
+            background: rgba(5, 5, 8, 0.8);
             border-left: 2px solid rgba(255,255,255,0.1);
             padding: 15px;
             z-index: 100;
@@ -278,20 +295,29 @@
                 </div>
             </div>
             
-            <div class="flex flex-col gap-3 relative h-full justify-center">
+            <div class="flex flex-col gap-4 relative h-full justify-center">
                 <div class="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-yellow-500/30 to-transparent"></div>
                 
-                <div id="team-emea" class="ml-8 p-2 rounded transition duration-700">
+                <div id="team-emea" class="ml-8 p-2 rounded transition duration-700 group">
                     <div class="text-[10px] text-gray-500 uppercase tracking-wider">España / Canarias</div>
                     <div class="text-white font-bold text-sm">EMEA HEADQUARTERS</div>
+                    <div class="h-0 overflow-hidden group-hover:h-auto transition-all" id="emea-lead">
+                        <div class="text-[9px] text-yellow-500 mt-1 font-mono">Lead: Exec. Producer EMEA</div>
+                    </div>
                 </div>
-                <div id="team-usa" class="ml-8 p-2 rounded transition duration-700">
+                <div id="team-usa" class="ml-8 p-2 rounded transition duration-700 group">
                     <div class="text-[10px] text-gray-500 uppercase tracking-wider">USA</div>
                     <div class="text-white font-bold text-sm">NORTH AMERICA BRIDGE</div>
+                    <div class="h-0 overflow-hidden group-hover:h-auto transition-all" id="usa-lead">
+                        <div class="text-[9px] text-yellow-500 mt-1 font-mono">Lead: Exec. Producer USA</div>
+                    </div>
                 </div>
-                <div id="team-latam" class="ml-8 p-2 rounded transition duration-700">
+                <div id="team-latam" class="ml-8 p-2 rounded transition duration-700 group">
                     <div class="text-[10px] text-gray-500 uppercase tracking-wider">LATAM</div>
                     <div class="text-white font-bold text-sm">LATAM UNIT</div>
+                    <div class="h-0 overflow-hidden group-hover:h-auto transition-all" id="latam-lead">
+                        <div class="text-[9px] text-yellow-500 mt-1 font-mono">Lead: Exec. Producer LATAM</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,28 +352,48 @@
             </div>
         </div>
 
-        <!-- 04. PRESUPUESTO -->
-        <div id="card-04" class="premium-card card-green col-span-12 md:col-span-4 p-8 border-b-4 border-b-green-500">
+        <!-- 04. PRESUPUESTO (UPDATED WITH VISUAL & ROLES) -->
+        <div id="card-04" class="premium-card card-green col-span-12 md:col-span-4 p-8 border-b-4 border-b-green-500 relative">
             <div class="section-header">
                 <div class="flex items-center">
                     <span class="section-number text-green-500">04</span>
                     <div class="section-title text-green-500">Presupuesto</div>
                 </div>
             </div>
-            <div class="space-y-5">
+            
+            <div class="space-y-4">
+                <!-- Validation Team -->
+                <div class="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                    <div class="text-xs text-gray-400">
+                        <span class="block text-[9px] uppercase tracking-wider text-gray-600">Auth 01</span>
+                        <span class="text-white font-bold">Productor Ejecutivo</span>
+                    </div>
+                    <div class="text-right text-xs text-gray-400">
+                        <span class="block text-[9px] uppercase tracking-wider text-gray-600">Calculation Lead</span>
+                        <span class="text-yellow-500 font-bold">Line Producer</span>
+                    </div>
+                </div>
+
                 <div class="flex gap-4 items-start group">
                     <div class="text-green-500 font-mono font-bold text-lg">A</div>
                     <div>
                         <h4 class="text-white font-bold text-sm">Ballpark</h4>
-                        <div class="text-xs text-gray-400 transition-colors duration-500" id="budget-status">Calculando...</div>
+                        <div class="text-xs text-gray-400 transition-colors duration-500" id="budget-status">En cola de cálculo...</div>
                     </div>
                 </div>
                 
-                <!-- Animated Budget Display -->
-                <div class="bg-black/40 p-4 rounded border border-green-500/20 text-center relative overflow-hidden">
-                    <div class="text-[10px] text-green-400 font-mono uppercase mb-1">ESTIMACIÓN ACTUAL</div>
-                    <div class="text-2xl text-white font-mono font-bold tracking-widest transition-colors duration-500" id="budget-counter">USD 0.0M</div>
-                    <div class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-1000" style="width: 0%" id="budget-bar"></div>
+                <!-- Animated Budget Display with YELLOW STRIP -->
+                <div class="bg-black/60 p-4 rounded border border-green-500/20 text-center relative overflow-hidden group">
+                    <div class="text-[10px] text-green-400 font-mono uppercase mb-1 flex justify-between">
+                        <span>ESTIMACIÓN ACTUAL</span>
+                        <span class="text-yellow-500 opacity-0 transition" id="lp-active-icon">⚡ LP ACTIVE</span>
+                    </div>
+                    <div class="text-2xl text-white font-mono font-bold tracking-widest transition-colors duration-500 relative z-10" id="budget-counter">USD 0.0M</div>
+                    
+                    <!-- The Visual Pop: Hazard Strip -->
+                    <div class="absolute bottom-0 left-0 h-2 w-full bg-gray-800">
+                        <div class="h-full w-0 hazard-strip transition-all duration-1000" id="budget-bar"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -568,17 +614,20 @@
             // 7s: Phase 2 Teams (5s gap)
             setTimeout(() => {
                 activateCard('card-02');
-                addLog('OPS', 'c-ops', 'Verificando unidades regionales...');
+                addLog('OPS', 'c-ops', 'Activando nodos regionales...');
                 
                 setTimeout(() => {
                     document.getElementById('team-emea').classList.add('bg-white/10');
+                    document.getElementById('emea-lead').classList.replace('h-0', 'h-auto'); // Reveal EP
                 }, 1000);
                 setTimeout(() => {
                     document.getElementById('team-usa').classList.add('bg-white/10');
+                    document.getElementById('usa-lead').classList.replace('h-0', 'h-auto');
                 }, 2000);
                 setTimeout(() => {
                     document.getElementById('team-latam').classList.add('bg-white/10');
-                    addLog('LATAM', 'text-white', 'Unidad en línea.');
+                    document.getElementById('latam-lead').classList.replace('h-0', 'h-auto');
+                    addLog('LATAM', 'text-white', 'Exec Producer asignado.');
                 }, 3000);
             }, 7000);
 
@@ -593,31 +642,37 @@
                 document.querySelectorAll('#roles-tags .tag').forEach((tag, i) => {
                     setTimeout(() => tag.classList.add('active'), i * 500);
                 });
-                addLog('HR', 'c-mkt', 'Roles clave listos.');
+                addLog('HR', 'c-mkt', 'Staffing confirmado.');
             }, 13000);
 
             // 19s: Budget (6s gap)
             setTimeout(() => {
                 activateCard('card-04');
                 activateCard('card-05'); 
-                document.getElementById('budget-status').innerText = "APROBADO";
-                document.getElementById('budget-status').className = "text-xs text-green-400 font-bold";
+                document.getElementById('budget-status').innerText = "VALIDANDO...";
+                document.getElementById('budget-status').className = "text-xs text-yellow-500 font-bold";
+                document.getElementById('lp-active-icon').style.opacity = 1; // Show Lightning icon
                 
-                addLog('FIN', 'c-fin', 'Calculando estructura...');
+                addLog('LINE_PROD', 'c-fin', 'Iniciando cálculo de Ballpark...');
                 
                 // Slower Counter
                 let count = 0.0;
                 const interval = setInterval(() => {
                     count += 0.1;
                     document.getElementById('budget-counter').innerText = "USD " + count.toFixed(1) + "M";
+                    // Using the new hazard strip for progress
                     document.getElementById('budget-bar').style.width = (count / 2.0 * 100) + "%";
+                    
                     if(count >= 2.0) {
                         clearInterval(interval);
                         document.getElementById('budget-counter').innerText = "USD 2.0M";
                         document.getElementById('budget-counter').classList.add('text-green-400');
-                        addLog('FIN', 'c-fin', 'Fondos asignados.');
+                        document.getElementById('budget-status').innerText = "FIRMADO POR EP";
+                        document.getElementById('budget-status').className = "text-xs text-green-400 font-bold";
+                        document.getElementById('lp-active-icon').style.opacity = 0;
+                        addLog('EXEC', 'c-exec', 'Presupuesto validado y cerrado.');
                     }
-                }, 200); // Slower counting
+                }, 200); 
 
                 // Timeline
                 document.getElementById('timeline-progress').style.width = "33%";
